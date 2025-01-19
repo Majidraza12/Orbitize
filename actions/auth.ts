@@ -53,42 +53,56 @@ export async function signUp(formData: FormData) {
   return { status: "Something went wrong", user: null };
 }
 export async function login(formData: FormData) {
-  console.log(formData);
   const supabase = await createClient();
+
+  // First authenticate the user
   const { error, data } = await supabase.auth.signInWithPassword({
     email: formData.get("email") as string,
     password: formData.get("password") as string,
   });
+
   if (error) {
     return { status: error?.message, user: null };
-  } else if (data?.user) {
-    return { status: "Success", user: data?.user };
-  }
-  //Todo : create user Interface in user_profile table -> what we here are doing the we are creating a user in the user_profile table when the user login for the first time , therefore first we need to check if the user is already in the user_profile table , if not then we need to create a user in the user_profile table
-  const { data: existingUser } = await supabase
-    .from("user_profiles")
-    .select("*")
-    .eq("email", data?.user.email)
-    .limit(1)
-    .single();
-  //select only one row from the user_profile stable
-  if (!existingUser) {
-    const { error: insertError, data: user } = await supabase
-      .from("user_profiles")
-      .insert({
-        email: data?.user.email,
-        username: data?.user?.user_metadata?.username,
-      });
-    if (insertError) {
-      return { status: insertError?.message, user: null };
-    }
-    console.log(user);
-    return { status: "Success", user: user };
   }
 
-  // Revalidate the path (for page refresh)
+  if (!data?.user) {
+    return { status: "Authentication failed", user: null };
+  }
+
+  // Check if user profile exists in user_profiles table
+  const { data: profileUser, error: profileError } = await supabase
+    .from("user_profiles")
+    .select("*")
+    .eq("email", data.user.email)
+    .single();
+
+  console.log("Profile from user_profiles table:", profileUser);
+
+  // If profile doesn't exist in user_profiles, create one
+  if (!profileUser) {
+    console.log("Creating new profile for user");
+    const { error: insertError, data: newProfile } = await supabase
+      .from("user_profiles")
+      .insert({
+        id: data.user.id,
+        email: data.user.email,
+        username: data.user.user_metadata.username,
+      })
+      .select()
+      .single();
+
+    if (insertError) {
+      console.log("Error creating profile:", insertError);
+      return { status: insertError?.message, user: null };
+    }
+
+    revalidatePath("/", "layout");
+    return { status: "Success", user: newProfile };
+  }
+
+  // Return the user profile from user_profiles table, not the auth user
   revalidatePath("/", "layout");
-  return { status: "success", user: data?.user };
+  return { status: "Success", user: profileUser };
 }
 export async function logout() {
   const supabase = await createClient();
