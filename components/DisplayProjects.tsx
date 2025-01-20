@@ -32,10 +32,10 @@ function DisplayProjects() {
 
     fetchProjects();
   }, []);
-  console.log("projects : ", projects);
+
   return (
     <div>
-      {error && <p>Error: {error}</p>}
+      {error && <p>Error: {error.message || "An error occurred"}</p>}
       {projects.length > 0 ? (
         <div className="flex gap-10 flex-wrap p-5 mt-10">
           {projects.map((project) => (
@@ -50,18 +50,23 @@ function DisplayProjects() {
               <div className="flex gap-2 items-center">
                 <p className="text-sm text-gray-500">{project.start_date}</p>
                 <ArrowRight size={16} />
-                <p className="text-sm text-gray-500">{project.end_date}</p> 
+                <p className="text-sm text-gray-500">{project.end_date}</p>
               </div>
               <div className="flex justify-between">
                 <div className="flex gap-1">
                   <p className="text-sm text-gray-500">Status:</p>
                   <p
-                      className={`text-sm ${statusColors[project.status as keyof typeof statusColors]}`}
+                    className={`text-sm ${statusColors[project.status as keyof typeof statusColors]}`}
                   >
                     {project.status}
                   </p>
                 </div>
-                <Button size="sm" onClick={() => router.push(`/dashboard/${project.id}`)}>Open Page</Button>
+                <Button
+                  size="sm"
+                  onClick={() => router.push(`/dashboard/${project.id}`)}
+                >
+                  Open Page
+                </Button>
               </div>
             </div>
           ))}

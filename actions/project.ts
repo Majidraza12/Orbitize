@@ -40,7 +40,7 @@ export async function createProject(formData: FormData) {
     return { status: "Project already exists", project: null };
   }
   // Insert the project, using session.user.id as the owner_id
-  console.log("id.data?.id : ", id.data?.id);
+  // console.log("id.data?.id : ", id.data?.id);
   const { error, data } = await supabase.from("projects").insert({
     name: formData.get("name") as string,
     owner_id: id.data?.id, // Use the UID from the session
@@ -49,7 +49,12 @@ export async function createProject(formData: FormData) {
     end_date: formData.get("endDate") as string,
     status: formData.get("status") as string,
   });
-
+  console.log("Owner ID : ", id.data?.id);
+  const {data: addedProject, error: addedProjectError} = await supabase.from("projects").select("*").eq("owner_id", id.data?.id);
+  if (addedProjectError) {
+    console.log("Error adding owner to members table:", addedProjectError);
+  }
+  console.log("addedProject : ", addedProject);
   if (error) {
     console.log("Error creating project:", error);
     return { status: error?.message, project: null };
@@ -78,7 +83,7 @@ export async function getProjects() {
     .eq("owner_id", user.id) // Ensure this matches the owner_id in your database
 
   // Log the results of the query
-  console.log("Projects fetched:", projects);
+  // console.log("Projects fetched:", projects);
 
   if (projects?.length === 0) {
     console.log("No projects found");
@@ -92,4 +97,23 @@ export async function getProjects() {
 
   return { projects, error };
 }
-
+//To get details for a specific project
+export async function getProject(projectId: string) {
+  const supabase = await createClient();
+  const { data: project, error } = await supabase.from("projects").select("*").eq("id", projectId).single();
+  return { project, error };
+}
+//To get members for a specific project
+export async function getMembers(projectId: string) {
+  const supabase = await createClient();
+  const { data: members, error } = await supabase.from("members").select("*").eq("project_id", projectId);
+  return { members, error };
+}
+///To add a member to a project
+export async function addMember(projectId: string, userId: string) {
+  const supabase = await createClient();
+  const { data: member, error } = await supabase.from("members").insert({ project_id: projectId, user_id: userId });
+  console.log("member : ", member);
+  console.log("error : ", error);
+  return { member, error };
+}
