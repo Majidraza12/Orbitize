@@ -76,7 +76,11 @@ export async function login(formData: FormData) {
     .eq("email", data.user.email)
     .single();
 
-  console.log("Profile from user_profiles table:", profileUser);
+  if (profileError) {
+    console.log("Error fetching profile:", profileError);
+    return { status: profileError?.message, user: null };
+  }
+  // console.log("Profile from user_profiles table:", profileUser);
 
   // If profile doesn't exist in user_profiles, create one
   if (!profileUser) {

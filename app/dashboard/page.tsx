@@ -1,10 +1,9 @@
-import CreateProjectButton from "@/components/CreateProjectButton";
+import DisplayProjects from "@/components/DisplayProjects";
 
 export default function DashboardPage() {
   return (
     <div>
-      This is the dashboard page - Private Page
-      <CreateProjectButton />
+      <DisplayProjects />
     </div>
   );
 }

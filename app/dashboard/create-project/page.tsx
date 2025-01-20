@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,8 +16,10 @@ import {
 } from "@/components/ui/select";
 import { createProject } from "@/actions/project";
 import { toast } from "react-hot-toast";
+import { Loader } from "lucide-react";
 
 export default function CreateProjectPage() {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [projectData, setProjectData] = useState({
     name: "",
@@ -76,11 +79,12 @@ export default function CreateProjectPage() {
       const res = await createProject(formData); 
       if (res.status === "Success") {
         toast.success("Project created successfully");
+        router.push("/dashboard");
       } else {
-        toast.error("Failed to create project");
+        toast.error(res.status);
       }
     } catch (error) {
-      toast.error(error?.message || "Failed to create project");
+      toast.error(error || "Failed to create project");
     } finally {
       setIsLoading(false);
     }
@@ -163,7 +167,7 @@ export default function CreateProjectPage() {
           </div>
         </div>
         <Button className="mt-4 mx-auto" onClick={handleCreateProject}>
-          Create Project
+          {isLoading ? <Loader className="w-4 h-4 mr-2 animate-spin" /> : "Create Project"}
         </Button>
       </div>
     </div>

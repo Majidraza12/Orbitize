@@ -3,7 +3,7 @@ import { createClient } from "@/utils/supabase/server";
 
 export async function createProject(formData: FormData) {
   const supabase = await createClient();
-//   console.log("formData : ", formData);
+  //   console.log("formData : ", formData);
 
   // Verify user is logged in
   const {
@@ -18,12 +18,29 @@ export async function createProject(formData: FormData) {
   const id = await supabase
     .from("user_profiles")
     .select("id")
-      .eq("email", user.email)
+    .eq("email", user.email)
     .single();
-//   console.log("id : ", id.data?.id);
-//   console.log("id.data : ", id.data);
+  //   console.log("id : ", id.data?.id);
+  //   console.log("id.data : ", id.data);
+  //Make sure that the project name is unique
+  console.log("formData.get('name') : ", formData.get("name"));
+  const { data: project, error: projectError } = await supabase
+    .from("projects")
+    .select("*")
+    .eq("name", formData.get("name") as string)
+    .single();
 
+  if (projectError) {
+    console.log("Error fetching project:", projectError);
+  }
+
+  console.log("project : ", project);
+  if (project) {
+    console.log("Project already exists:", project);
+    return { status: "Project already exists", project: null };
+  }
   // Insert the project, using session.user.id as the owner_id
+  console.log("id.data?.id : ", id.data?.id);
   const { error, data } = await supabase.from("projects").insert({
     name: formData.get("name") as string,
     owner_id: id.data?.id, // Use the UID from the session
@@ -34,9 +51,45 @@ export async function createProject(formData: FormData) {
   });
 
   if (error) {
-    console.log("Error creating project:", error);  
+    console.log("Error creating project:", error);
     return { status: error?.message, project: null };
   } else {
     return { status: "Success", project: data };
   }
 }
+
+export async function getProjects() {
+  const supabase = await createClient();
+  // Get the current logged in user
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error("Unauthorized - Please log in");
+  }
+
+  // Log the user ID for debugging
+  console.log("User ID:", user.id);
+
+  // Get the projects for the current user
+  const { data: projects, error } = await supabase
+    .from("projects")
+    .select("*")
+    .eq("owner_id", user.id) // Ensure this matches the owner_id in your database
+
+  // Log the results of the query
+  console.log("Projects fetched:", projects);
+
+  if (projects?.length === 0) {
+    console.log("No projects found");
+    return { projects: null, error: "No projects found" };
+  }
+
+  if (error) {
+    console.log("Error fetching projects:", error);
+    return { projects: null, error: error?.message };
+  }
+
+  return { projects, error };
+}
+
