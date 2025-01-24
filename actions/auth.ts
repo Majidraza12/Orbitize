@@ -17,97 +17,72 @@ export async function signUp(formData: FormData) {
       },
     },
   });
-
   if (error) {
-    return { status: error?.message, user: null };
-  }
-
-  if (data?.user) {
-    // Check if the email is already registered
-    if (!data.user.identities || data.user.identities.length === 0) {
+    return { status: error?.message, user: null }
+  } else if (data?.user) {
+    //Check if the user has identities (external logins)
+    if (data.user.identities?.length === 0) {
       return { status: "Email already registered", user: null };
     }
-
-    // Create user profile
-    const { error: profileError } = await supabase
-      .from("user_profiles")
-      .insert({
-        email: data.user.email,
-        username: data.user.user_metadata.username,
-      });
-
-    if (profileError) {
-      return { status: profileError.message, user: null };
-    }
-
-    // Revalidate the path (for page refresh)
-    revalidatePath("/", "layout");
-
+    //revalidate path for page refresh
+    revalidatePath("/", "layout")
     return {
       status: "Success",
-      data: data.user,
-      session: data.session,
+      data: data?.user,
+      session: data?.session,
     };
   }
-
   return { status: "Something went wrong", user: null };
 }
 export async function login(formData: FormData) {
   const supabase = await createClient();
 
-  // First authenticate the user
-  const { error, data } = await supabase.auth.signInWithPassword({
-    email: formData.get("email") as string,
-    password: formData.get("password") as string,
-  });
+  // Authenticate the user
+  const { error: authError, data: authData } =
+    await supabase.auth.signInWithPassword({
+      email: formData.get("email") as string,
+      password: formData.get("password") as string,
+    });
 
-  if (error) {
-    return { status: error?.message, user: null };
+  if (authError) {
+    return { status: authError.message, user: null };
   }
 
-  if (!data?.user) {
-    return { status: "Authentication failed", user: null };
-  }
-
-  // Check if user profile exists in user_profiles table
-  const { data: profileUser, error: profileError } = await supabase
+  // Check if the user exists in the user_profiles table
+  const { data: existingUser, error: selectError } = await supabase
     .from("user_profiles")
     .select("*")
-    .eq("email", data.user.email)
+    .eq("email", formData.get("email") as string)
     .single();
 
-  if (profileError) {
-    console.log("Error fetching profile:", profileError);
-    return { status: profileError?.message, user: null };
+  if (selectError && selectError.code !== "PGRST116") {
+    // Handle any unexpected errors except "no rows found" (PostgREST code: PGRST116)
+    return { status: selectError.message, user: null };
   }
-  // console.log("Profile from user_profiles table:", profileUser);
 
-  // If profile doesn't exist in user_profiles, create one
-  if (!profileUser) {
-    console.log("Creating new profile for user");
-    const { error: insertError, data: newProfile } = await supabase
+  if (!existingUser) {
+    // If the user doesn't exist, insert them into the user_profiles table
+    const { error: insertError, data: insertedUser } = await supabase
       .from("user_profiles")
       .insert({
-        id: data.user.id,
-        email: data.user.email,
-        username: data.user.user_metadata.username,
+        email: authData.user?.email,
+        username: authData.user?.user_metadata?.username || null,
       })
-      .select()
       .single();
 
     if (insertError) {
-      console.log("Error creating profile:", insertError);
-      return { status: insertError?.message, user: null };
+      return { status: insertError.message, user: null };
     }
 
-    revalidatePath("/", "layout");
-    return { status: "Success", user: newProfile };
+    return { status: "Success", user: insertedUser };
   }
 
-  // Return the user profile from user_profiles table, not the auth user
+  // Optionally revalidate paths (make sure this function is properly defined in your context)
   revalidatePath("/", "layout");
-  return { status: "Success", user: profileUser };
+
+  return { status: "Success", user: authData.user };
 }
+  
 export async function logout() {
   const supabase = await createClient();
   const { error } = await supabase.auth.signOut();

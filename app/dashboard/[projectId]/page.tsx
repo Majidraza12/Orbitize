@@ -1,7 +1,7 @@
 import React from 'react'
 import { getProject } from "@/actions/project";
-import KanbanBoard from "@/components/KanbanBoard";
 import MembersDisplay from "@/components/MembersDisplay";
+import DisplayTasks from "@/components/DisplayTasks"
 
 const ProjectPage = async ({ params }: { params: { projectId: string } }) => {
   const projectId = (await params).projectId;
@@ -10,12 +10,15 @@ const ProjectPage = async ({ params }: { params: { projectId: string } }) => {
   if (error) {
     return <div>Error: {error.message || "An unknown error occurred"}</div>;
   }
+  if (!project) {
+    return <div>Loading...</div>;
+  } 
 
   return (
     <div>
       <h1>Details about Project {projectId} {project.name} </h1>
       <div className="flex p-2">
-        <KanbanBoard projectId={projectId} />
+        <DisplayTasks projectId = {projectId} />
         <MembersDisplay projectId={projectId} />
       </div>
     </div>

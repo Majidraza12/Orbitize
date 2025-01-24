@@ -113,7 +113,15 @@ export async function getMembers(projectId: string) {
 export async function addMember(projectId: string, userId: string) {
   const supabase = await createClient();
   const { data: member, error } = await supabase.from("members").insert({ project_id: projectId, user_id: userId });
-  console.log("member : ", member);
-  console.log("error : ", error);
-  return { member, error };
+  if (error) {
+    console.error("Error adding member to project:", error);
+    return {
+      member: null,
+      error: error ? error.message : "Unknown error occurred",
+    };
+  } else {
+    console.log("Member added successfully:", member);
+    return { member, error: null };
+  }
 }
+
