@@ -3,8 +3,32 @@ import React, { useEffect, useState } from "react";
 import { getProjects } from "@/actions/project";
 import { Button } from "@/components/ui/button";
 import CreateProjectButton from "@/components/CreateProjectButton";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, User, MoveUpRight } from "lucide-react";
+import {
+  CalendarIcon,
+  UserIcon,
+  ClipboardListIcon,
+  PencilIcon,
+} from "lucide-react";  
 import { useRouter } from "next/navigation";
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Card,
+  CardFooter,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
 
 function DisplayProjects() {
   const router = useRouter();
@@ -15,8 +39,8 @@ function DisplayProjects() {
     active: "text-green-500",
     "completed\n": "text-blue-500",
     "cancelled\n": "text-red-500",
-    'on-hold\n': "text-yellow-500",
-    'in-progress\n': "text-orange-500",
+    "on-hold\n": "text-yellow-500",
+    "in-progress\n": "text-orange-500",
   };
 
   useEffect(() => {
@@ -32,50 +56,82 @@ function DisplayProjects() {
 
     fetchProjects();
   }, []);
+  const handlePageOpen = (e,projectId) => {
+    e.preventDefault();
+    router.push(`/dashboard/${projectId}`);
+   }
 
   return (
     <div>
-      {error && <p>Error: {error.message || "An error occurred"}</p>}
-      {projects.length > 0 ? (
+      {projects ? (
         <div className="flex gap-10 flex-wrap p-5 mt-10">
-          {projects.map((project) => (
-            <div
-              key={project.id}
-              className="border border-gray-300 shadow-lg p-5 rounded-lg transition-transform transform hover:scale-105 w-[20%] h-[20%]"
-            >
-              <h1 className="font-bold text-xl mb-2">{project.name}</h1>
-              <p className="text-white mb-1">
-                Description: {project.description}
-              </p>
-              <div className="flex gap-2 items-center">
-                <p className="text-sm text-gray-500">{project.start_date}</p>
-                <ArrowRight size={16} />
-                <p className="text-sm text-gray-500">{project.end_date}</p>
-              </div>
-              <div className="flex justify-between">
-                <div className="flex gap-1">
-                  <p className="text-sm text-gray-500">Status:</p>
-                  <p
-                    className={`text-sm ${statusColors[project.status as keyof typeof statusColors]}`}
-                  >
-                    {project.status}
-                  </p>
-                </div>
+          {projects.map((project, index) => (
+            <Card key={index} className="min-w-[80%] sm:min-w-[20%]">
+              <CardHeader>
+                <CardTitle>{project.name}</CardTitle>
+                <CardDescription>
+                  <div className="flex gap-4 mt-3">
+                    <Badge
+                      variant={project.status !== "active" ? project.status === "cancelled\n" ? "destructive" : "secondary" : ""}
+                      // color={statusColors[project.status]}
+                      
+                      className="text-xs"
+                    >
+                      {project.status}
+                    </Badge>
+                    <div className="flex items-center justify-center gap-2">
+                      <CalendarIcon size={20} />
+                      <p className="text-xs">{project.end_date}</p>
+                    </div>
+                  </div>
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="mt-0"></CardContent>
+              <CardFooter className="flex justify-between">
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button>Veiw Details</Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>{project.name}</DialogTitle>
+                      <DialogDescription>
+                        {/* <p className="font-bold">Description :</p> */}
+                        {project.description}
+                      </DialogDescription>
+                      <div className="flex gap-1">
+                        <CalendarIcon size={20} />
+                        <p className="text-sm ">{project.start_date}</p>
+                        <ArrowRight size={20} />
+                        <p className="text-sm">{project.end_date}</p>
+                      </div>
+                      <div className="flex gap-1 text-sm">
+                        Status :
+                        <p className={`${statusColors[project.status]}`}>
+                          {project.status}
+                        </p>
+                      </div>
+                    </DialogHeader>
+                  </DialogContent>
+                </Dialog>
                 <Button
-                  size="sm"
-                  onClick={() => router.push(`/dashboard/${project.id}`)}
+                  variant="secondary"
+                  onClick={(e) => handlePageOpen(e, project.id)}
                 >
-                  Open Page
+                  View Page
+                  <MoveUpRight size={12} />
                 </Button>
-              </div>
-            </div>
+              </CardFooter>
+            </Card>
           ))}
           <div className="flex justify-center items-center">
             <CreateProjectButton />
           </div>
         </div>
       ) : (
-        <p>No projects found.</p>
+        <div className="flex justify-center items-center">
+          <CreateProjectButton />
+        </div>
       )}
     </div>
   );

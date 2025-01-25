@@ -12,7 +12,7 @@ const Navbar = async () => {
   } = await supabase.auth.getUser();
 
   return (
-    <div className="p-2 border-b-2 border-slate-800 flex items-center justify-around">
+    <div className="p-2 border-b-2 border-slate-800 flex items-center justify-around min-h-[20%]">
       <div className="flex gap-2">
         <Link href="/">
           <p className="text-3xl ml-1 p-1 font-semibold">TaskSphere</p>

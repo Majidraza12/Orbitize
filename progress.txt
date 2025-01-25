@@ -1,0 +1,18 @@
+Todos :
+1.Add skeletonLoader for projects
+2.Display All member in the project Along side their roles
+3.When a member is added a email is sent to them as a notification
+3.Add Task feature Implement
+4.Forget & reset password feature implemenation
+5.Add organization column to project
+6.Fix Display member
+
+Done :
+1.fixed login and user_profiles bug
+2.improved projects page UI
+3.Add Member issue fixed
+
+
+
+Add Member Login functionality -> The user can add any one that has an account on the app , once the user is added to a project a email is sent to the user , the user has the option to leave the project 
+  

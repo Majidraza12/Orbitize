@@ -52,9 +52,21 @@ export async function createProject(formData: FormData) {
   console.log("Owner ID : ", id.data?.id);
   const {data: addedProject, error: addedProjectError} = await supabase.from("projects").select("*").eq("owner_id", id.data?.id);
   if (addedProjectError) {
-    console.log("Error adding owner to members table:", addedProjectError);
+    console.log("Error adding project:", addedProjectError);
   }
   console.log("addedProject : ", addedProject);
+  //Once we have created the project , we have to add the owner into members table
+  const newMmeber = {
+    project_id: addedProject[0]?.id,
+    user_id: id.data?.id,
+    role: "owner",
+  }
+  const { data: addedMember, error: insertError } = await supabase.from("members").insert(newMmeber);
+  if (insertError) {
+    console.error("Error adding member to the project:", insertError);
+    return { member: null, error: insertError.message };
+  }
+  console.log("New member added:", addedMember);
   if (error) {
     console.log("Error creating project:", error);
     return { status: error?.message, project: null };
@@ -87,7 +99,7 @@ export async function getProjects() {
 
   if (projects?.length === 0) {
     console.log("No projects found");
-    return { projects: null, error: "No projects found" };
+    return { projects: null };
   }
 
   if (error) {
@@ -109,19 +121,6 @@ export async function getMembers(projectId: string) {
   const { data: members, error } = await supabase.from("members").select("*").eq("project_id", projectId);
   return { members, error };
 }
-///To add a member to a project
-export async function addMember(projectId: string, userId: string) {
-  const supabase = await createClient();
-  const { data: member, error } = await supabase.from("members").insert({ project_id: projectId, user_id: userId });
-  if (error) {
-    console.error("Error adding member to project:", error);
-    return {
-      member: null,
-      error: error ? error.message : "Unknown error occurred",
-    };
-  } else {
-    console.log("Member added successfully:", member);
-    return { member, error: null };
-  }
-}
+///To add a member to a project}
+
 
