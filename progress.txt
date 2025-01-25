@@ -1,16 +1,18 @@
 Todos :
 1.Add skeletonLoader for projects
 2.Display All member in the project Along side their roles
-3.When a member is added a email is sent to them as a notification
-3.Add Task feature Implement
-4.Forget & reset password feature implemenation
-5.Add organization column to project
+3.When a member is added a email is sent to them as a notification -> 30 mins
+3.Add Task feature Implement -> Inprogress 
+4.Forget & reset password feature implemenation -> 30 mins
+5.Add organization column to project -> Dropped for now
 6.Fix Display member
 
 Done :
 1.fixed login and user_profiles bug
 2.improved projects page UI
 3.Add Member issue fixed
+4.Fixed add member bug and owner bug
+5.Create Task UI completed
 
 
 

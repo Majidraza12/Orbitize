@@ -1,5 +1,6 @@
 "use server";
 import { createClient } from "@/utils/supabase/server";
+// import { revalidatePath } from "next/cache";
 
 export async function addMember(projectId: string, memberEmail: string) {
   const supabase = await createClient();
@@ -32,7 +33,7 @@ export async function addMember(projectId: string, memberEmail: string) {
     .limit(1)
 
   if (selectError) {
-    console.error("Error checking if member exists:", selectError);
+    console.log("Error checking if member exists:", selectError);
     return { member: null, error: selectError.message };
   }
   console.log("Existing member:", existingMember);
@@ -46,6 +47,7 @@ export async function addMember(projectId: string, memberEmail: string) {
     user_id: member.id, // Assuming `id` is the primary key in `user_profiles`
     role: "member", // Default role
   };
+  console.log("New member object:", newMember);
 
   // Step 4: Insert the new member into the members table
   const { data: addedMember, error: insertError } = await supabase
@@ -53,11 +55,12 @@ export async function addMember(projectId: string, memberEmail: string) {
     .insert(newMember);
 
   if (insertError) {
-    console.error("Error adding member to the project:", insertError);
+    console.log("Error adding member to the project:", insertError);
     return { member: null, error: insertError.message };
   }
 
   console.log("New member added:", addedMember);
+  // revalidatePath('/',"layout")  
   return { member: addedMember, error: null };
 }
 export async function getMembers(projectId: string) {
@@ -71,4 +74,18 @@ export async function getMembers(projectId: string) {
     return { members: [], error: error.message };
   }
   return { members: data, error: null };
+}
+export async function getMembersAndProfiles(projectId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("members")
+    .select("role, user_profiles(username,email)")
+    .eq("project_id", projectId);
+
+  if (error) {
+    console.error("Error fetching members and profiles:", error);
+    return []; // Return an empty array in case of an error
+  }
+
+  return data || [];
 }

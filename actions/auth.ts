@@ -18,14 +18,14 @@ export async function signUp(formData: FormData) {
     },
   });
   if (error) {
-    return { status: error?.message, user: null }
+    return { status: error?.message, user: null };
   } else if (data?.user) {
     //Check if the user has identities (external logins)
     if (data.user.identities?.length === 0) {
       return { status: "Email already registered", user: null };
     }
     //revalidate path for page refresh
-    revalidatePath("/", "layout")
+    revalidatePath("/", "layout");
     return {
       status: "Success",
       data: data?.user,
@@ -82,7 +82,7 @@ export async function login(formData: FormData) {
 
   return { status: "Success", user: authData.user };
 }
-  
+
 export async function logout() {
   const supabase = await createClient();
   const { error } = await supabase.auth.signOut();
@@ -92,4 +92,18 @@ export async function logout() {
   }
   revalidatePath("/", "layout");
   redirect("/auth/login");
+}
+
+export async function getUserData(id: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("user_profiles")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    return { user: null, error: error.message };
+  }
+  return { user: data, error: null };
 }

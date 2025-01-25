@@ -1,82 +1,62 @@
-"use client";
+// components/MembersDisplay.tsx
+"use client"
 import React, { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Plus } from "lucide-react";
-import toast from "react-hot-toast";
-import { addMember, getMembers } from "@/actions/members";
+import { getMembersAndProfiles } from "@/actions/members";
+
+// Inline Member interface definition
+interface Member {
+  role: string;
+  user_profiles: {
+    username: string;
+    email: string;
+  };
+}
 
 const MembersDisplay = ({ projectId }: { projectId: string }) => {
-  const [members, setMembers] = useState([]);
-  const [memberEmail, setMemberEmail] = useState("");
+  const [members, setMembers] = useState<Member[]>([]); // Ensure the state type matches the Member interface
+  const [loading, setLoading] = useState(true); // Track loading state
+  const [error, setError] = useState<string | null>(null); // Track error state
 
   useEffect(() => {
     const fetchMembers = async () => {
-      const { members, error } = await getMembers(projectId);
-      if (error) {
-        console.log("Error fetching members:", error);
-      } else {
-        setMembers(members);
+      try {
+        const membersData = await getMembersAndProfiles(projectId);
+        setMembers(membersData);
+      } catch (err) {
+        setError("Error fetching members");
+        console.error(err);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchMembers();
   }, [projectId]);
 
-  const handleAddMember = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    console.log(memberEmail);
-    const { member, error: userError } = await addMember(
-      projectId,
-      memberEmail
-    );
-    console.log("User found : ", member);
-
-    if (userError) {
-      console.error("Failed to add member:", userError);
-      toast.error(userError);
-    } else {
-      toast.success("Member successfully added");
-      console.log("Member successfully added:", member);
-      setMembers((prevMembers) => [...prevMembers, member]); // Add the new member to the list
-    }
-  };
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error}</p>;
 
   return (
-    <div className="w-[20%] min-h-[100%] border-l border-gray-200 pl-5">
-      <h2>Members</h2>
-      <div className="flex flex-col items-center gap-2">
-        {/* Add member section */}
-        <div>
-          <Input
-            type="text"
-            placeholder="Enter member email"
-            value={memberEmail}
-            onChange={(e) => setMemberEmail(e.target.value)}
-          />
-          <Button
-            className="flex items-center gap-2"
-            onClick={(e) => handleAddMember(e)}
-          >
-            <Plus size={16} /> Add Member
-          </Button>
-        </div>
-
-        {/* Display members list */}
-        <div className="mt-4 w-full">
-          <h3 className="text-lg font-semibold">Current Members:</h3>
-          {members.length > 0 ? (
-            <ul className="list-disc pl-4">
-              {members.map((member) => (
-                <li key={member.id} className="text-sm">
-                  {member.role} - {member.user_id}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>No members yet.</p>
-          )}
-        </div>
+    <div className="w-[30%]">
+      <h1>Project Members for {projectId}</h1>
+      <div>
+        {members.length > 0 ? (
+          members.map((member, index) => (
+            <div key={index} className="mb-4">
+              <p>
+                <strong>Role:</strong> {member.role}
+              </p>
+              <p>
+                <strong>Username:</strong> {member.user_profiles.username}
+              </p>
+              <p>
+                <strong>Email:</strong> {member.user_profiles.email}
+              </p>
+            </div>
+          ))
+        ) : (
+          <p>No members found for this project.</p>
+        )}
       </div>
     </div>
   );

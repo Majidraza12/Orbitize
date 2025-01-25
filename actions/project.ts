@@ -50,7 +50,7 @@ export async function createProject(formData: FormData) {
     status: formData.get("status") as string,
   });
   console.log("Owner ID : ", id.data?.id);
-  const {data: addedProject, error: addedProjectError} = await supabase.from("projects").select("*").eq("owner_id", id.data?.id);
+  const { data: addedProject, error: addedProjectError } = await supabase.from("projects").select("*").eq("name", formData.get("name") as string);
   if (addedProjectError) {
     console.log("Error adding project:", addedProjectError);
   }
