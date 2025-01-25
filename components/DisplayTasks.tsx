@@ -3,7 +3,7 @@ import CreateTask from './CreateTaskButton'
 
 const DisplayTasks = () => {
   return (
-    <div className='w-[70%]'>DisplayTasks
+    <div className='w-[75%]'>DisplayTasks
       <CreateTask/>
     </div>
   )
