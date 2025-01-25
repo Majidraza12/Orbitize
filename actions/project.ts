@@ -121,6 +121,9 @@ export async function getMembers(projectId: string) {
   const { data: members, error } = await supabase.from("members").select("*").eq("project_id", projectId);
   return { members, error };
 }
-///To add a member to a project}
+//Update project details
+export async function updateProject(projectId: string) {
+  console.log ("projectId : ", projectId);
+}
 
 
