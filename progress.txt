@@ -18,6 +18,7 @@ Done :
 5.Create Task UI completed
 6.Display Member Issue fixed
 7.Display All member in the project Along side their roles
+8.Update Project UI completed
 
 
 

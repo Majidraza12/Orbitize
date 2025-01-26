@@ -116,14 +116,57 @@ export async function getProject(projectId: string) {
   return { project, error };
 }
 //To get members for a specific project
-export async function getMembers(projectId: string) {
-  const supabase = await createClient();
-  const { data: members, error } = await supabase.from("members").select("*").eq("project_id", projectId);
-  return { members, error };
-}
+// export async function getMembers(projectId: string) {
+//   const supabase = await createClient();
+//   const { data: members, error } = await supabase.from("members").select("*").eq("project_id", projectId);
+//   return { members, error };
+// }
 //Update project details
-export async function updateProject(projectId: string) {
-  console.log ("projectId : ", projectId);
+export async function updateProject(projectId: string, formData: FormData) {
+  const supabase = await createClient();
+
+  // Debugging: log formData values to check if they are being passed correctly
+  console.log("FormData values:");
+  console.log("Name:", formData.name);
+  console.log("Description:", formData.description);
+  console.log("Start Date:", formData.startDate);
+  console.log("End Date:", formData.endDate);
+  console.log("Status:", formData.status);
+  console.log("Project ID:", projectId);  
+
+  // Ensure all necessary form data exists
+  const name = formData.name as string;
+  const description = formData.description as string;
+  const startDate = formData.startDate as string;
+  const endDate = formData.endDate as string;
+  const status = formData.status as string;
+  console.log("Date being sent Confirmation");
+  console.log("Name : ", name);
+  console.log(description);
+  console.log(startDate);
+  console.log(endDate);
+  console.log(status)
+  if (!name || !description || !startDate || !endDate || !status) {
+    return { status: "Error: Missing required fields", project: null };
+  }
+
+  const { data, error } = await supabase
+    .from("projects")
+    .update({
+      name,
+      description,
+      start_date: startDate,
+      end_date: endDate,
+      status,
+    })
+    .eq("id", projectId);
+
+  if (error) {
+    console.error("Supabase Error:", error.message); // Log the error for debugging
+    return { status: error.message, project: null };
+  }
+
+  return { status: "Success" };
 }
 
 

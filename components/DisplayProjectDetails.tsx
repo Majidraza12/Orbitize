@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { getProject } from "@/actions/project";
+import { getProject, updateProject } from "@/actions/project";
 import { Pencil } from "lucide-react";
 import {
   Card,
@@ -40,6 +40,10 @@ const DisplayProjectDetails = ({ projectId }) => {
 
   useEffect(() => {
     const fetchProject = async () => {
+      console.log("Fetching project with ID:", projectId); // Debug log
+      if (!projectId) {
+        return toast.error("Invalid Project ID");
+      }
       const { project, error } = await getProject(projectId);
       if (error) {
         toast.error(error?.message);
@@ -64,18 +68,34 @@ const DisplayProjectDetails = ({ projectId }) => {
 
   const handleStatusChange = (value) => {
     setProjectData((prevData) => ({ ...prevData, status: value }));
-    };
-    
-    const handleSaveChanges = async (e) => { 
-        if (!projectData.name || !projectData.description || !projectData.startDate || !projectData.endDate || !projectData.status) {
-            return toast.error("Please fill all the fields");
-        }
-        if (new Date(projectData.startDate) < new Date() || new Date(projectData.endDate) < new Date()) { 
-            return toast.error("Start date and end date should be in the future");
-        }
-        e.preventDefault();
-        console.log(projectData);
+  };
+
+  const handleSaveChanges = async (e) => {
+    e.preventDefault();
+    if (
+      !projectData.name ||
+      !projectData.description ||
+      !projectData.startDate ||
+      !projectData.endDate ||
+      !projectData.status
+    ) {
+      return toast.error("Please fill all the fields");
     }
+    if (
+      new Date(projectData.startDate) < new Date() ||
+      new Date(projectData.endDate) < new Date()
+    ) {
+      return toast.error("Start date and end date should be in the future");
+    }
+    console.log("Project ID in handleSaveChanges:", projectId); // Debug log
+    console.log("Project Data being sent:", projectData); // Debug log
+    const { status } = await updateProject(projectId, projectData);
+    console.log("Updated Project:", project); // Debug log
+    if (status !== "Success") {
+        return toast.error("Failed to update project");
+    }
+    return toast.success("Project updated successfully");
+  };
 
   return (
     <div>
