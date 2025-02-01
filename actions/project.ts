@@ -86,13 +86,26 @@ export async function getProjects() {
   }
 
   // Log the user ID for debugging
-  console.log("User ID:", user.id);
+  console.log("User ID:", user.email);
 
-  // Get the projects for the current user
-  const { data: projects, error } = await supabase
-    .from("projects")
-    .select("*")
-    .eq("owner_id", user.id) // Ensure this matches the owner_id in your database
+  const { data: userProfile, error: userProfileError } = await supabase.from("user_profiles").select("*").eq("email", user.email).single();
+  console.log("User Profile:", userProfile);  
+
+  //Get the project Ids from the members table
+  const { data: projectIds, error } = await supabase
+    .from("members")
+    .select("project_id")
+    .eq("user_id", userProfile.id) // Get projects where the user is a member
+
+  console.log("Project IDs:", projectIds);
+
+  // Get the project details for each project ID
+  const projectIdsArray = projectIds?.map((project) => project.project_id);
+  console.log("Project IDs Array:", projectIdsArray);
+
+  const {data : projects, error: projectError} = await supabase.from("projects").select("*").in("id", projectIdsArray);
+  
+  
 
   // Log the results of the query
   // console.log("Projects fetched:", projects);
@@ -102,12 +115,12 @@ export async function getProjects() {
     return { projects: null };
   }
 
-  if (error) {
-    console.log("Error fetching projects:", error);
-    return { projects: null, error: error?.message };
+  if (projectError) {
+    console.log("Error fetching projects:", projectError);
+    return { projects: null, projectError: projectError?.message };
   }
 
-  return { projects, error };
+  return { projects, error: null };
 }
 //To get details for a specific project
 export async function getProject(projectId: string) {

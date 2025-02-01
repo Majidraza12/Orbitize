@@ -1,5 +1,4 @@
 Todos :
-1.Add skeletonLoader for projects
 3.When a member is added a email is sent to them as a notification -> 30 mins
 3.Add Task feature Implement -> Inprogress 
 4.Forget & reset password feature implemenation -> 30 mins
@@ -8,6 +7,8 @@ Todos :
 7.Delete Task
 8.Leave Project
 9.User profile_page -> Might consider it
+10.Project not showing -> where the user is just a member -> SQL query Possible fix
+11.Update and Add member , not updating in real time , when page is refreshed then the result is shown and also once the update is successful the dialog should be closed automatically
 
 Done :
 1.fixed login and user_profiles bug
@@ -19,6 +20,8 @@ Done :
 7.Display All member in the project Along side their roles
 8.Update Project UI completed
 9.Update Project Base feature functionality implemented
+10.Added Project skeletonLoader
+11.10.Project not showing -> where the user is just a member -> SQL query Possible fix -> DONE
 
 
 

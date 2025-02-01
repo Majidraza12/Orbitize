@@ -1,5 +1,6 @@
 "use server";
 import { createClient } from "@/utils/supabase/server";
+import { revalidatePath } from "next/cache";
 // import { revalidatePath } from "next/cache";
 
 export async function addMember(projectId: string, memberEmail: string) {
@@ -60,7 +61,7 @@ export async function addMember(projectId: string, memberEmail: string) {
   }
 
   console.log("New member added:", addedMember);
-  // revalidatePath('/',"layout")  
+  revalidatePath(`/dashboard/${projectId}`,"layout")  
   return { member: addedMember, error: null };
 }
 export async function getMembers(projectId: string) {
@@ -86,6 +87,5 @@ export async function getMembersAndProfiles(projectId: string) {
     console.error("Error fetching members and profiles:", error);
     return []; // Return an empty array in case of an error
   }
-
   return data || [];
 }
