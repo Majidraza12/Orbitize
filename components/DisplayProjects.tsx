@@ -68,7 +68,10 @@ function DisplayProjects() {
       {projects && projects.length > 0 ? (
         <div className="flex gap-10 flex-wrap p-5 mt-10">
           {projects.map((project, index) => (
-            <Card key={index} className="w-[20%]">
+            <Card
+              key={index}
+              className="md:w-[340px] h-[200px] w-[90%]"
+            >
               <CardHeader>
                 <CardTitle>{project.name}</CardTitle>
                 <CardDescription>

@@ -7,9 +7,7 @@ Todos :
 7.Delete Task
 8.Leave Project
 9.User profile_page -> Might consider it
-10.Project not showing -> where the user is just a member -> SQL query Possible fix
-11.Update and Add member , not updating in real time , when page is refreshed then the result is shown and also once the update is successful the dialog should be closed automatically
-
+11.Implement Loader for members and project details
 Done :
 1.fixed login and user_profiles bug
 2.improved projects page UI
@@ -22,6 +20,8 @@ Done :
 9.Update Project Base feature functionality implemented
 10.Added Project skeletonLoader
 11.10.Project not showing -> where the user is just a member -> SQL query Possible fix -> DONE
+12.Update and Add member , not updating in real time , when page is refreshed then the result is shown and also once the update is successful the dialog should be closed automatically -> Window reload enabled -> BUT find a better way to do it later
+
 
 
 

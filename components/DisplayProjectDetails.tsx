@@ -94,7 +94,8 @@ const DisplayProjectDetails = ({ projectId }) => {
     if (status !== "Success") {
         return toast.error("Failed to update project");
     }
-    return toast.success("Project updated successfully");
+    toast.success("Project updated successfully");
+    window.location.reload();
   };
 
   return (

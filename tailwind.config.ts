@@ -1,6 +1,4 @@
-import type { Config } from "tailwindcss";
-
-export default {
+module.exports = {
   darkMode: ["class"],
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -9,6 +7,12 @@ export default {
   ],
   theme: {
     extend: {
+      screens: {
+        "2xl": "1536px", // Custom breakpoint for 2xl
+        "1650": "1650px", // Custom breakpoint for 1650px
+        "1000": "1000px", // Custom breakpoint for 1200px
+        "1400": "1400px", // Custom breakpoint for 1400px
+      },
       colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",

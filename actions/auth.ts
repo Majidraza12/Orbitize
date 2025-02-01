@@ -1,8 +1,10 @@
+
 //Server actions regarding authentication
 "use server";
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { useAuthUserStore } from "@/store/authUserStore";
 
 export async function signUp(formData: FormData) {
   const supabase = await createClient();
@@ -73,7 +75,6 @@ export async function login(formData: FormData) {
     if (insertError) {
       return { status: insertError.message, user: null };
     }
-
     return { status: "Success", user: insertedUser };
   }
 

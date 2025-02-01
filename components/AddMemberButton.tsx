@@ -9,15 +9,19 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {Resend} from 'resend'
 import { Button } from "./ui/button";
 import { Plus, User } from "lucide-react";
 import { Input } from "./ui/input";
 import toast from "react-hot-toast";
-import { addMember } from "@/actions/members";
+import { addMember } from "@/actions/members";  
+import { useRouter } from "next/navigation";
 
-function AddMemberButton({projectId}) {
+function AddMemberButton({ projectId }) {
   const [email, setEmail] = useState("");
   const [isClient, setIsClient] = useState(false); // Client-side check
+  const router = useRouter();
+
 
   // To avoid hydration error, we set a flag to check if the component is running on the client-side
   useEffect(() => {
@@ -30,11 +34,14 @@ function AddMemberButton({projectId}) {
       return;
     }
     const { data, error } = await addMember(projectId, email);
-      if (error) {
-        return toast.error(error?.message || "Member Already exists or Account not found");
-      }  
-      return toast.success("Member added successfully");
-    
+    if (error) {
+      return toast.error(
+        error?.message || "Member Already exists or Account not found"
+      );
+    }
+
+    toast.success("Member added successfully");
+    window.location.reload();
   };
 
   // Only render the Dialog on the client side
