@@ -89,3 +89,17 @@ export async function getMembersAndProfiles(projectId: string) {
   }
   return data || [];
 }
+export async function getMemberRole(projectId: string, userId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("members")
+    .select("role")
+    .eq("project_id", projectId)
+    .eq("user_id", userId)
+    .single();
+  if (error) {
+    console.error("Error fetching member role:", error);
+    return { role: null, error: error.message };
+  }
+  return { role: data?.role, error: null };
+}

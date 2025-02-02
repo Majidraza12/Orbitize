@@ -8,6 +8,9 @@ Todos :
 8.Leave Project
 9.User profile_page -> Might consider it
 11.Implement Loader for members and project details
+12.Implement Global StateManagment
+
+
 Done :
 1.fixed login and user_profiles bug
 2.improved projects page UI

@@ -2,6 +2,7 @@ import React from 'react'
 import { getProject } from "@/actions/project";
 import MembersDisplay from "@/components/MembersDisplay";
 import DisplayTasks from "@/components/DisplayTasks"
+import useAuthUserStore from '@/store/authUserStore';
 
 const ProjectPage = async ({ params }: { params: { projectId: string } }) => {
   const projectId = (await params).projectId;
@@ -15,7 +16,7 @@ const ProjectPage = async ({ params }: { params: { projectId: string } }) => {
   } 
 
   return (
-      <div className="flex px-2 min-h-[80%]">
+    <div className="flex px-2 min-h-[80%]">
         <DisplayTasks projectId = {projectId} />
         <MembersDisplay projectId={projectId} />
       </div>
