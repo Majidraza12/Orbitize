@@ -5,6 +5,7 @@ import { Button } from "./ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {createTask} from "@/actions/task";
 import {
   Select,
   SelectContent,
@@ -22,7 +23,7 @@ import {
 } from "@/components/ui/dialog";
 import toast from "react-hot-toast";
 
-const CreateTask = () => {
+const CreateTask = ( projectId : {projectId : string}) => {
   const [formData, setFormData] = useState({
     task_name: "",
     description: "",
@@ -53,7 +54,17 @@ const CreateTask = () => {
     ) {
       return toast.error("All fields are required");
     }
-
+    const newFormData = new FormData();
+    newFormData.append("task_name", formData.task_name);
+    newFormData.append("description", formData.description);
+    newFormData.append("status", formData.status);
+    newFormData.append("dueDate", formData.dueDate);
+    newFormData.append("assignedTo", formData.assignedTo);
+    newFormData.append("priority", formData.priority);
+    newFormData.append("category", formData.category);
+    newFormData.append("project_id",projectId.projectId);
+    console.log(newFormData);
+    const {status,error} = createTask(newFormData);
     // Convert dueDate string to Date object for comparison
     const dueDate = new Date(formData.dueDate);
     const today = new Date();
@@ -179,6 +190,7 @@ const CreateTask = () => {
               <Input
                 id="assignedTo"
                 value={formData.assignedTo}
+                placeholder="Enter email address"
                 onChange={(e) =>
                   setFormData({ ...formData, assignedTo: e.target.value })
                 }

@@ -17,7 +17,7 @@ const ProjectPage = async ({ params }: { params: { projectId: string } }) => {
 
   return (
     <div className="flex px-2 min-h-[80%]">
-        <DisplayTasks projectId = {projectId} />
+        <DisplayTasks projectId={projectId} />
         <MembersDisplay projectId={projectId} />
       </div>
   );

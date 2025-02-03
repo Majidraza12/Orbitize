@@ -1,10 +1,10 @@
 import React from 'react'
 import CreateTask from './CreateTaskButton'
 
-const DisplayTasks = () => {
+const DisplayTasks = ( {projectId}  : string) => {
   return (
     <div className='w-[75%]'>DisplayTasks
-      <CreateTask/>
+      <CreateTask projectId={projectId} />
     </div>
   )
 }
