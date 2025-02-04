@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -41,7 +42,7 @@ const CreateTask = ( projectId : {projectId : string}) => {
     setIsClient(true);
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (
       !formData.task_name ||
@@ -64,7 +65,10 @@ const CreateTask = ( projectId : {projectId : string}) => {
     newFormData.append("category", formData.category);
     newFormData.append("project_id",projectId.projectId);
     console.log(newFormData);
-    const {status,error} = createTask(newFormData);
+    const { status , task } = await createTask(newFormData);
+    if (!task) {
+      return toast.error(status || "Something went wrong");
+    }
     // Convert dueDate string to Date object for comparison
     const dueDate = new Date(formData.dueDate);
     const today = new Date();
@@ -198,9 +202,11 @@ const CreateTask = ( projectId : {projectId : string}) => {
             </div>
 
             <DialogFooter>
-              <Button type="button" variant="outline">
-                Cancel
-              </Button>
+              <DialogClose asChild>
+                <Button type="button" variant="destructive">
+                  Cancel
+                </Button>
+              </DialogClose>
               <Button type="submit">Save Changes</Button>
             </DialogFooter>
           </form>
