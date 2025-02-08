@@ -23,8 +23,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import toast from "react-hot-toast";
+import { stat } from "fs";
 
-const CreateTask = ( projectId : {projectId : string}) => {
+const CreateTask = (projectId: { projectId: string }) => {
   const [formData, setFormData] = useState({
     task_name: "",
     description: "",
@@ -36,6 +37,7 @@ const CreateTask = ( projectId : {projectId : string}) => {
   });
 
   const [isClient, setIsClient] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   // Ensure we only render client-side after hydration is complete
   useEffect(() => {
@@ -63,45 +65,43 @@ const CreateTask = ( projectId : {projectId : string}) => {
     newFormData.append("assignedTo", formData.assignedTo);
     newFormData.append("priority", formData.priority);
     newFormData.append("category", formData.category);
-    newFormData.append("project_id",projectId.projectId);
+    newFormData.append("project_id", projectId.projectId);
     console.log(newFormData);
-    const { status , task } = await createTask(newFormData);
-    if (!task) {
-      return toast.error(status || "Something went wrong");
-    }
     // Convert dueDate string to Date object for comparison
     const dueDate = new Date(formData.dueDate);
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Reset time portion for date comparison
-
     if (dueDate < today) {
       return toast.error("Due date cannot be in the past");
     }
-
-    console.log(formData);
-    setFormData({
-      task_name: "",
-      description: "",
-      status: "",
-      dueDate: "",
-      assignedTo: "",
-      priority: "",
-      category: "",
-    });
+    const { status, task } = await createTask(newFormData);
+    if (status === "Success") {
+      setFormData({
+        task_name: "",
+        description: "",
+        status: "",
+        dueDate: "",
+        assignedTo: "",
+        priority: "",
+        category: "",
+      });
+      setDialogOpen(false);
+      return toast.success("Task created Successfully!");
+    }
+    return toast.error(status || "Something went wrong");
   };
 
   if (!isClient) return null; // Avoid rendering until the client is ready
 
   return (
-    <Dialog>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
-        <Button>Create Task</Button>
+        <Button onClick={() => setDialogOpen(true)}>Create Task</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create Task</DialogTitle>
         </DialogHeader>
-        {/* Replace DialogDescription with a div or wrap its content in a div */}
         <div>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
@@ -203,11 +203,15 @@ const CreateTask = ( projectId : {projectId : string}) => {
 
             <DialogFooter>
               <DialogClose asChild>
-                <Button type="button" variant="destructive">
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={() => setDialogOpen(false)}
+                >
                   Cancel
                 </Button>
               </DialogClose>
-              <Button type="submit">Save Changes</Button>
+              <Button type="submit">Create Task</Button>
             </DialogFooter>
           </form>
         </div>

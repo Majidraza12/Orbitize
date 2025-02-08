@@ -8,11 +8,8 @@ import { login } from "@/actions/auth";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { Loader } from "lucide-react";
-import useAuthUserStore from "../../../store/authUserStore";
-import { set } from "date-fns";
 
 export default function LoginPage() {
-  const { setAuthUser } = useAuthUserStore();
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -37,13 +34,12 @@ export default function LoginPage() {
 
       if (response.status === "Success") {
         toast.success("Logged in successfully");
-        setAuthUser(response.user);
         router.push("/dashboard");
       } else {
         toast.error(response.status || "Login failed");
       }
     } catch (error) {
-      toast.error(error.message || "Login failed");
+      toast.error(error || "Login failed");
     } finally {
       setIsLoading(false);
     }
