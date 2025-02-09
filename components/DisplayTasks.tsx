@@ -47,9 +47,9 @@ const DisplayTasks: React.FC<DisplayTasksProps> = ({ projectId }) => {
 
   return (
     <div className="w-[75%]">
-      <h1 className="text-2xl mb-2 mt-2">Tasks</h1>
+      <h1 className="text-3xl font-mono m-4 font-bold">Project Tasks</h1>
       {tasks.length > 0 ? (
-        <div className="flex gap-10 flex-wrap p-5 mt-10">
+        <div className="flex gap-10 flex-wrap m-2">
           {tasks.map((task, index) => (
             <Card key={index} className="md:w-[340px] h-[200px] w-[90%]">
               <CardHeader>
@@ -79,7 +79,7 @@ const DisplayTasks: React.FC<DisplayTasksProps> = ({ projectId }) => {
                   <span>{task.assignedToName}</span>
                 </div>
               </CardContent>
-              <CardFooter>
+              <CardFooter className="flex items-start justify-between">
                 <Dialog>
                   <DialogTrigger asChild>
                     <Button size="sm">View Details</Button>
@@ -129,7 +129,7 @@ const DisplayTasks: React.FC<DisplayTasksProps> = ({ projectId }) => {
                         </div>
                       </div>
                     </DialogHeader>
-                    <DialogFooter>
+                    <DialogFooter >
                       <DialogClose asChild>
                         <Button variant="destructive" size="sm">
                           Close
@@ -140,7 +140,7 @@ const DisplayTasks: React.FC<DisplayTasksProps> = ({ projectId }) => {
                 </Dialog>
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button onClick={() => setSelectedTask(task)}>
+                    <Button size="sm" variant="secondary" onClick={() => setSelectedTask(task)}>
                       Update Task
                     </Button>
                   </DialogTrigger>
