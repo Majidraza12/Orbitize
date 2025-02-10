@@ -1,12 +1,12 @@
 Todos :
 3.When a member is added a email is sent to them as a notification -> 30 mins
-3.Add Task feature Implement -> Inprogress 
 4.Forget & reset password feature implemenation -> 30 mins
 5.Add organization column to project -> Dropped for now
 6.Only owner can update and delete project -> How to do it ? -> create policy -> SQL
-7.Delete Task
-8.Leave Project
-9.User profile_page -> Might consider it
+7.Delete Task -> Only owner
+8.Leave Project -> members have a option to leave the project
+9.Implement Project Update Backend (project could only be updated by the owner)
+10.User profile_page -> Might consider it
 
 
 Done :
@@ -22,6 +22,7 @@ Done :
 10.Added Project skeletonLoader
 11.10.Project not showing -> where the user is just a member -> SQL query Possible fix -> DONE
 12.Update and Add member , not updating in real time , when page is refreshed then the result is shown and also once the update is successful the dialog should be closed automatically -> Window reload enabled -> BUT find a better way to do it later
+13.Add Task Feature Enable also update and view details of Task UI implemented
 
 
 

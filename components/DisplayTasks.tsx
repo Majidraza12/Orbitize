@@ -121,15 +121,15 @@ const DisplayTasks: React.FC<DisplayTasksProps> = ({ projectId }) => {
                             </span>
                           </div>
                           <div className="flex items-center gap-1">
-                            <Mail className="h-4 w-4" />
-                            <span className="text-white">
+                            <span className="text-white flex items-center gap-1">
+                              <Mail className="h-4 w-4 text-muted-foreground" />
                               {task.assignedToEmail}
                             </span>
                           </div>
                         </div>
                       </div>
                     </DialogHeader>
-                    <DialogFooter >
+                    <DialogFooter>
                       <DialogClose asChild>
                         <Button variant="destructive" size="sm">
                           Close
@@ -140,7 +140,11 @@ const DisplayTasks: React.FC<DisplayTasksProps> = ({ projectId }) => {
                 </Dialog>
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button size="sm" variant="secondary" onClick={() => setSelectedTask(task)}>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => setSelectedTask(task)}
+                    >
                       Update Task
                     </Button>
                   </DialogTrigger>

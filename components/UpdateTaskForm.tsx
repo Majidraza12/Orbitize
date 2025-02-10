@@ -21,25 +21,43 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { updateTask } from "@/actions/task";
+import toast from "react-hot-toast";
 
-const UpdateTaskForm = ({ task }) => {
+const UpdateTaskForm = ({task }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
+    task_id : task.id,
     task_name: task.task_name,
     description: task.description,
     status: task.status,
     priority: task.priority,
     category: task.category,
     due_date: task.due_date,
+    projectId: task.projectId,
+    assignedToId : task.assignedToId,
+    assignedToEmail: task.assignedToEmail,
+    assignedToName : task.assignedToName,
   });
 
   useEffect(() => {
     console.log("task : ", task);
   }, [task]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault(); // Prevent page refresh
-    console.log("Form Data:", formData); // Log the form data
+    console.log("Task Sent : ",task)
+    console.log("Form Data:", formData);
+    const { status, data } = await updateTask(formData)// Log the form data
+    if (status === "Task updated Successfully") {
+      console.log(data)
+      toast.success("Task was updated Successfully")
+        window.location.reload();
+    }
+    else {
+      console.log(data)
+      return toast.error(status)
+    }
   };
 
   return (
@@ -126,6 +144,17 @@ const UpdateTaskForm = ({ task }) => {
             value={formData.due_date}
             onChange={(e) =>
               setFormData({ ...formData, due_date: e.target.value })
+            }
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="dueDate">Assigned To</Label>
+          <Input
+            id="assignedToEmail"
+            type="text"
+            value={formData.assignedToEmail}
+            onChange={(e) =>
+              setFormData({ ...formData, assignedToEmail: e.target.value })
             }
           />
         </div>

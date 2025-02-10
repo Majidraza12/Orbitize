@@ -1,5 +1,6 @@
 "use server"
 import { createClient } from "@/utils/supabase/server";
+import { stat } from "fs";
 
 
 export async function createTask(formData: FormData) {
@@ -58,4 +59,63 @@ export async function getTasks(projectId: string) {
     return {data : null , status : error}
   }
   return { data: Tasks, status : "Success"}
+}
+export async function updateTask(formData) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+  console.log(user);
+  if (userError) {
+    console.log("Error fetching user:", userError);
+    return { status: "Error fetching user", data: null };
+  }
+  const userId = user?.id;
+  console.log("Current User ID:", userId);
+  const { data, error: projectError } = await supabase
+    .from("projects")
+    .select("owner_id")
+    .eq("id", formData.projectId);
+  console.log(data);
+  if (projectError) {
+    return { status: "Project not found", data: projectError };
+  }
+  if (user?.id !== data[0].owner_id) {
+    return { status: "Only Admins can update the Project", data: null };
+  }
+  //Check if the assigned member is part of the project or no
+  // console.log("AssignedTO email " , formData.assignedToEmail)
+const { data: member, error: memberError } = await supabase
+  .from("members")
+  .select("id, user_profiles!inner(email, username)") // Select specific fields and force INNER JOIN
+  .eq("project_id", formData.projectId)
+  .eq("user_profiles.email", formData.assignedToEmail); // Correct filtering
+  console.log(member);
+  if (memberError) {
+    return { status: "Server Error", data: memberError };
+  }
+  if (member.length === 0) {
+    return { status: "Assignee is not a member of the Project", data: null };
+  }
+  //If all check are good , then we can update the table
+  const { data: updatedTask, error: updateTaskError } = await supabase
+    .from("tasks")
+    .update({
+      task_name: formData.task_name,
+      description: formData.description,
+      status: formData.status,
+      priority: formData.priority,
+      category: formData.category,
+      due_date: formData.due_date,
+      projectId: formData.projectId,
+      assignedToId: member[0]?.id,
+      assignedToEmail: member[0]?.user_profiles?.email,
+      assignedToName: member[0]?.user_profiles?.username,
+    })
+    .eq("id", formData.task_id);
+  if (updateTaskError) {
+    return { status: "Update Task failed", data: updateTaskError };
+  }
+  return { status: "Task updated Successfully", data: updatedTask };
 }
