@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import React, { useState } from "react";
 import { PlusCircle, GitCommit, Calendar, User } from "lucide-react";
 import {
@@ -17,6 +17,9 @@ const Page = ({
 }: {
   params: { projectId: string; taskId: string };
 }) => {
+  // Unwrapping params using React.use
+  const { projectId, taskId } = React.use(params);
+
   const [commits, setCommits] = useState([
     {
       id: 1,
@@ -63,8 +66,8 @@ const Page = ({
         <div>
           <h1 className="text-2xl font-bold mb-2">Commit History</h1>
           <div className="text-sm text-gray-500">
-            <p>Project ID: {params.projectId}</p>
-            <p>Task ID: {params.taskId || "None"}</p>
+            <p>Project ID: {projectId}</p>
+            <p>Task ID: {taskId || "None"}</p>
           </div>
         </div>
 

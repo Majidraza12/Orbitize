@@ -32,6 +32,7 @@ import {
   History,
 } from "lucide-react";
 import UpdateTaskForm from "./UpdateTaskForm";
+import ShowLatestCommit from "./ShowLatestCommit";
 
 interface DisplayTasksProps {
   projectId: string;
@@ -196,6 +197,9 @@ const DisplayTasks: React.FC<DisplayTasksProps> = ({ projectId }) => {
           <CreateTask projectId={projectId} />
         </div>
       )}
+      <div className="ml-2 mt-10">
+        <ShowLatestCommit projectId={projectId} />
+      </div>
     </div>
   );
 };
