@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import CreateTask from "./CreateTaskButton";
 import { getTasks } from "@/actions/task";
+import { useRouter, usePathname } from "next/navigation";
 import { Button } from "./ui/button";
 import {
   Card,
@@ -22,7 +23,14 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { Badge } from "./ui/badge";
-import { CalendarIcon, Calendar, Mail, User } from "lucide-react";
+import {
+  CalendarIcon,
+  Calendar,
+  Mail,
+  User,
+  Trash2,
+  History,
+} from "lucide-react";
 import UpdateTaskForm from "./UpdateTaskForm";
 
 interface DisplayTasksProps {
@@ -32,7 +40,8 @@ interface DisplayTasksProps {
 const DisplayTasks: React.FC<DisplayTasksProps> = ({ projectId }) => {
   const [tasks, setTasks] = useState<any[]>([]);
   const [selectedTask, setSelectedTask] = useState<any>(null);
-
+  const router = useRouter();
+  const pathname = usePathname();
   const capitalize = (str: string) =>
     str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : str;
 
@@ -45,6 +54,16 @@ const DisplayTasks: React.FC<DisplayTasksProps> = ({ projectId }) => {
     fetchTasks();
   }, [projectId]);
 
+  const hanldeTaskDelete = async (e,task) => {
+    e.preventDefault()
+    console.log(task)
+  }
+
+  const handleViewCommit = (e) =>{
+      const newPath = `${pathname}/commits/1`; // Append extra content
+      router.push(newPath);
+  }
+
   return (
     <div className="w-[75%]">
       <h1 className="text-3xl font-mono m-4 font-bold">Project Tasks</h1>
@@ -53,7 +72,13 @@ const DisplayTasks: React.FC<DisplayTasksProps> = ({ projectId }) => {
           {tasks.map((task, index) => (
             <Card key={index} className="md:w-[340px] h-[200px] w-[90%]">
               <CardHeader>
-                <CardTitle>{task.task_name}</CardTitle>
+                <CardTitle className="flex items-center justify-between">
+                  {task.task_name}
+                  <Trash2
+                    className="h-4 w-4 hover:text-red-800 hover:cursor-pointer"
+                    onClick={(e) => hanldeTaskDelete(e, task)}
+                  />
+                </CardTitle>
                 <CardDescription>
                   <Badge
                     variant={
@@ -129,7 +154,13 @@ const DisplayTasks: React.FC<DisplayTasksProps> = ({ projectId }) => {
                         </div>
                       </div>
                     </DialogHeader>
-                    <DialogFooter>
+                    <DialogFooter className="flex justify-between">
+                      <div className="flex items-center gap-1 hover:underline hover:text-white mt-0">
+                        <span className="text-white flex items-center gap-1" onClick={(e)=>handleViewCommit()}>
+                          <History className="h-4 w-4 text-muted-foreground" />
+                          <p className="text-sm">Commit History</p>
+                        </span>
+                      </div>
                       <DialogClose asChild>
                         <Button variant="destructive" size="sm">
                           Close
@@ -156,11 +187,15 @@ const DisplayTasks: React.FC<DisplayTasksProps> = ({ projectId }) => {
               </CardFooter>
             </Card>
           ))}
+          <div className="flex items-center justify-center">
+            <CreateTask projectId={projectId} />
+          </div>
         </div>
       ) : (
-        <div>No Tasks</div>
+        <div className="flex items-center p-4">
+          <CreateTask projectId={projectId} />
+        </div>
       )}
-      <CreateTask projectId={projectId} />
     </div>
   );
 };

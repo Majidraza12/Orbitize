@@ -4,7 +4,23 @@ import { stat } from "fs";
 
 
 export async function createTask(formData: FormData) {
+  //Only the project owner can create Task
+
   const supabase = await createClient()
+  const { data: { user }, error: userError } = await supabase.auth.getUser()
+  // console.log(user)
+  const userId = user?.id;
+
+  const { data: projectData, error: projectsError } = await supabase
+    .from("projects")
+    .select("owner_id")
+    .eq("id", formData.get("project_id") as string);
+  // console.log(projectData[0].owner_id)
+  if (userId !== projectData[0].owner_id) {
+    return {status : "Only Owner can create Tasks" , task : null}
+  }
+
+
   const { data: userIds, error } = await supabase.from("members").select("user_id").eq("project_id", formData.get("project_id") as string)
   if (error) {
     console.log("Error fetching members:", error);

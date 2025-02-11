@@ -7,6 +7,7 @@ Todos :
 8.Leave Project -> members have a option to leave the project
 9.Implement Project Update Backend (project could only be updated by the owner)
 10.User profile_page -> Might consider it
+11.Progress Report function
 
 
 Done :

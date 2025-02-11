@@ -92,7 +92,7 @@ const DisplayProjectDetails = ({ projectId }) => {
     const { status } = await updateProject(projectId, projectData);
     console.log("Updated Project:", project); // Debug log
     if (status !== "Success") {
-        return toast.error("Failed to update project");
+        return toast.error(status);
     }
     toast.success("Project updated successfully");
     window.location.reload();

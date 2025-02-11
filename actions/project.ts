@@ -139,13 +139,20 @@ export async function updateProject(projectId: string, formData: FormData) {
   const supabase = await createClient();
 
   // Debugging: log formData values to check if they are being passed correctly
-  console.log("FormData values:");
-  console.log("Name:", formData.name);
-  console.log("Description:", formData.description);
-  console.log("Start Date:", formData.startDate);
-  console.log("End Date:", formData.endDate);
-  console.log("Status:", formData.status);
-  console.log("Project ID:", projectId);  
+  // console.log("FormData values:");
+  // console.log("Name:", formData.name);
+  // console.log("Description:", formData.description);
+  // console.log("Start Date:", formData.startDate);
+  // console.log("End Date:", formData.endDate);
+  // console.log("Status:", formData.status);
+  // console.log("Project ID:", projectId);  
+  const { data: { user }, error: userError } = await supabase.auth.getUser()
+  const userId = user?.id
+  const { data: { owner_id }, error: projectError } = await supabase.from("projects").select("owner_id").eq("id", projectId)
+  if (userId !== owner_id) {
+    return {status : "Only Owner Can update Project Details" }
+  }
+
 
   // Ensure all necessary form data exists
   const name = formData.name as string;
@@ -182,4 +189,12 @@ export async function updateProject(projectId: string, formData: FormData) {
   return { status: "Success" };
 }
 
+// export async function deleteTask(task) {
+//   const supabase = await createClient()
+//   const { data: { user }, error: userError } = await supabase.auth.getUser()
+//   if (userError) {
+//     console.log("Error fetching user : ", userError)
+//     return { status : "Error fetching user",data:null}
+//   }
 
+// }
