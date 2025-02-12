@@ -85,8 +85,12 @@ const CreateTask = (projectId: { projectId: string }) => {
         priority: "",
         category: "",
       });
+      toast.success("Task created Successfully!");
+      setTimeout(() => {
+        window.location.reload();
+      }, 600);
       setDialogOpen(false);
-      return toast.success("Task created Successfully!");
+      return
     }
     return toast.error(status || "Something went wrong");
   };

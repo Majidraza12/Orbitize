@@ -135,3 +135,47 @@ const { data: member, error: memberError } = await supabase
   }
   return { status: "Task updated Successfully", data: updatedTask };
 }
+export async function deleteTask(task) {
+  const supabase = await createClient();
+
+  // Fetch the authenticated user
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !userData?.user) {
+    console.log("Error fetching user:", userError);
+    return { status: "Error fetching user", data: null };
+  }
+
+  const userId = userData.user.id;
+  console.log("User ID:", userId);
+
+  // Fetch project owner
+  const { data: projectData, error: projectError } = await supabase
+    .from("projects")
+    .select("owner_id")
+    .eq("id", task.projectId)
+    .single(); // Ensure a single object is returned
+
+  if (projectError || !projectData) {
+    return {
+      status: "Project not found or error fetching project",
+      data: projectError,
+    };
+  }
+
+  if (userId !== projectData.owner_id) {
+    return { status: "Only Admins can update the Project", data: null };
+  }
+
+  // If all good, delete the task
+  const { error: TaskError } = await supabase
+    .from("tasks")
+    .delete()
+    .eq("id", task.id);
+
+  if (TaskError) {
+    return { status: "Task deletion failed", data: TaskError.message };
+  }
+
+  return { status: "Success" };
+}

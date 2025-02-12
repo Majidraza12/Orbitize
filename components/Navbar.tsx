@@ -4,6 +4,7 @@ import { ArrowRightIcon } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/server";
 import LogoutButton from "./LogoutButton";
+import ProfileButton from "./ProfileButton";
 
 const Navbar = async () => {
   const supabase = await createClient();
@@ -21,6 +22,7 @@ const Navbar = async () => {
       {user ? (
         <div className="flex gap-2">
           <LogoutButton />
+          <ProfileButton/>
         </div>
       ) : (
         <div className="flex gap-2">

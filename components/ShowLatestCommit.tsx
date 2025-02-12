@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
 import { getLatestCommit } from "@/actions/commit";
+import CommitLoader from "@/components/skeletons/CommitLoader"
 
 function ShowLatestCommit({ projectId }: { projectId: string }) {
   const router = useRouter();
@@ -60,7 +61,7 @@ function ShowLatestCommit({ projectId }: { projectId: string }) {
   return (
     <div className="mr-20 w-[60%]">
       {loading ? (
-        <div>Loading ...</div>
+         <CommitLoader/>
       ) : (
         <div className="border rounded-lg p-4 hover:shadow-md transition-shadow">
           <div className="flex items-start justify-between">

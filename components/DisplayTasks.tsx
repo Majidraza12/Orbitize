@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import CreateTask from "./CreateTaskButton";
-import { getTasks } from "@/actions/task";
+import { deleteTask, getTasks } from "@/actions/task";
 import { useRouter, usePathname } from "next/navigation";
 import ShowLatestCommit from "./ShowLatestCommit";
 import { Button } from "./ui/button";
@@ -27,6 +27,7 @@ import { Badge } from "./ui/badge";
 import { Calendar, Mail, User, Trash2, History } from "lucide-react";
 import UpdateTaskForm from "./UpdateTaskForm";
 import TaskSkeletonLoader from "./TaskSkeletonLoader";
+import toast from "react-hot-toast";
 
 interface DisplayTasksProps {
   projectId: string;
@@ -56,6 +57,15 @@ const DisplayTasks: React.FC<DisplayTasksProps> = ({ projectId }) => {
   const handleTaskDelete = async (e: React.MouseEvent, task: any) => {
     e.preventDefault();
     console.log(task);
+    const { status } = await deleteTask(task)
+    if (status === "Success") {
+      toast.success("Task Deleted");
+      setTimeout(() => {
+        window.location.reload();
+      }, 600); //600ms delay
+      return
+    }
+    return toast.success(status)
   };
 
   const handleViewCommit = () => {
@@ -75,10 +85,26 @@ const DisplayTasks: React.FC<DisplayTasksProps> = ({ projectId }) => {
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   {task.task_name}
-                  <Trash2
-                    className="h-4 w-4 hover:text-red-800 hover:cursor-pointer"
-                    onClick={(e) => handleTaskDelete(e, task)}
-                  />
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Trash2 className="h-4 w-4 hover:text-red-800 hover:cursor-pointer" />
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Are you absolutely sure?</DialogTitle>
+                        <DialogDescription>
+                          This action cannot be undone. This will permanently
+                          delete your task and remove your data from our
+                          servers.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <DialogFooter>
+                        <Button size="sm" variant="destructive" onClick={(e)=>handleTaskDelete(e,task)}>
+                          Delete Task
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                 </CardTitle>
                 <CardDescription>
                   <Badge
