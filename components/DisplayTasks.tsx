@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import CreateTask from "./CreateTaskButton";
 import { getTasks } from "@/actions/task";
 import { useRouter, usePathname } from "next/navigation";
+import ShowLatestCommit from "./ShowLatestCommit";
 import { Button } from "./ui/button";
 import {
   Card,
@@ -23,16 +24,9 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { Badge } from "./ui/badge";
-import {
-  CalendarIcon,
-  Calendar,
-  Mail,
-  User,
-  Trash2,
-  History,
-} from "lucide-react";
+import { Calendar, Mail, User, Trash2, History } from "lucide-react";
 import UpdateTaskForm from "./UpdateTaskForm";
-import ShowLatestCommit from "./ShowLatestCommit";
+import TaskSkeletonLoader from "./TaskSkeletonLoader";
 
 interface DisplayTasksProps {
   projectId: string;
@@ -41,34 +35,40 @@ interface DisplayTasksProps {
 const DisplayTasks: React.FC<DisplayTasksProps> = ({ projectId }) => {
   const [tasks, setTasks] = useState<any[]>([]);
   const [selectedTask, setSelectedTask] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+
   const capitalize = (str: string) =>
-    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : str;
+    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
 
   useEffect(() => {
     const fetchTasks = async () => {
+      setLoading(true);
       console.log("Fetching tasks for projectId:", projectId);
       const { data } = await getTasks(projectId);
       setTasks(data);
+      setLoading(false);
     };
     fetchTasks();
   }, [projectId]);
 
-  const hanldeTaskDelete = async (e,task) => {
-    e.preventDefault()
-    console.log(task)
-  }
+  const handleTaskDelete = async (e: React.MouseEvent, task: any) => {
+    e.preventDefault();
+    console.log(task);
+  };
 
-  const handleViewCommit = (e) =>{
-      const newPath = `${pathname}/commits/1`; // Append extra content
-      router.push(newPath);
-  }
+  const handleViewCommit = () => {
+    const newPath = `${pathname}/commits/1`;
+    router.push(newPath);
+  };
 
   return (
     <div className="w-[75%]">
       <h1 className="text-3xl font-mono m-4 font-bold">Project Tasks</h1>
-      {tasks.length > 0 ? (
+      {loading ? (
+        <TaskSkeletonLoader />
+      ) : tasks.length > 0 ? (
         <div className="flex gap-10 flex-wrap m-2">
           {tasks.map((task, index) => (
             <Card key={index} className="md:w-[340px] h-[200px] w-[90%]">
@@ -77,7 +77,7 @@ const DisplayTasks: React.FC<DisplayTasksProps> = ({ projectId }) => {
                   {task.task_name}
                   <Trash2
                     className="h-4 w-4 hover:text-red-800 hover:cursor-pointer"
-                    onClick={(e) => hanldeTaskDelete(e, task)}
+                    onClick={(e) => handleTaskDelete(e, task)}
                   />
                 </CardTitle>
                 <CardDescription>
@@ -87,7 +87,7 @@ const DisplayTasks: React.FC<DisplayTasksProps> = ({ projectId }) => {
                         ? "destructive"
                         : task.status === "Completed"
                           ? "secondary"
-                          : ""
+                          : "default"
                     }
                     className="mt-1"
                   >
@@ -124,7 +124,7 @@ const DisplayTasks: React.FC<DisplayTasksProps> = ({ projectId }) => {
                                   ? "destructive"
                                   : task.status === "Completed"
                                     ? "secondary"
-                                    : ""
+                                    : "default"
                               }
                               className="mt-1"
                             >
@@ -157,7 +157,10 @@ const DisplayTasks: React.FC<DisplayTasksProps> = ({ projectId }) => {
                     </DialogHeader>
                     <DialogFooter className="flex justify-between">
                       <div className="flex items-center gap-1 hover:underline hover:text-white mt-0">
-                        <span className="text-white flex items-center gap-1" onClick={(e)=>handleViewCommit()}>
+                        <span
+                          className="text-white flex items-center gap-1"
+                          onClick={handleViewCommit}
+                        >
                           <History className="h-4 w-4 text-muted-foreground" />
                           <p className="text-sm">Commit History</p>
                         </span>
