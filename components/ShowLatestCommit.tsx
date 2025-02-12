@@ -1,13 +1,26 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
+import { getLatestCommit } from "@/actions/commit";
 
 function ShowLatestCommit({ projectId }: { projectId: string }) {
   const router = useRouter();
   const pathname = usePathname();
+  const [latestCommit,setLatestCommit] = useState()
+
+  useEffect(() => {
+    const fetchLatestCommit = async () => {
+      const { status, data } = await getLatestCommit(projectId)
+      console.log(data)
+      if (status === "Success") {
+        setLatestCommit(data)
+      }
+    }
+    fetchLatestCommit()
+  },[projectId])
 
   const handleViewAllCommits = (e) => {
     e.preventDefault();
@@ -23,11 +36,11 @@ function ShowLatestCommit({ projectId }: { projectId: string }) {
               <div className="flex items-center gap-2">
                 <span className="text-sm">⎇</span>
                 <span className="font-mono text-sm text-gray-500">
-                  first 5 digits of the commit Id
+                  commit
                 </span>
               </div>
               <p className="font-medium">
-                latest commit message for the project
+                latest commit message
               </p>
             </div>
             <Button
@@ -41,7 +54,7 @@ function ShowLatestCommit({ projectId }: { projectId: string }) {
           </div>
 
           <div className="flex items-center gap-3 text-sm text-gray-500">
-            <span>authorName</span>
+            <span>{}</span>
             <span>•</span>
             <span className="flex items-center gap-1">
               <span>🕒</span>

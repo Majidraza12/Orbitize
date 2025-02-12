@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { PlusCircle, GitCommit, Calendar, User } from "lucide-react";
 import {
   Dialog,
@@ -11,6 +11,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { addCommit , getCommits } from "@/actions/commit";
+import toast from "react-hot-toast";
 
 const Page = ({
   params,
@@ -20,56 +22,70 @@ const Page = ({
   // Unwrapping params using React.use
   const { projectId, taskId } = React.use(params);
 
-  const [commits, setCommits] = useState([
-    {
-      id: 1,
-      message: "Initial commit: Project setup and basic structure",
-      author: "John Doe",
-      date: "2024-02-09",
-      hash: "8f62a4d",
-    },
-    {
-      id: 2,
-      message: "Add authentication system and user roles",
-      author: "Jane Smith",
-      date: "2024-02-08",
-      hash: "3e7b9c1",
-    },
-  ]);
+  const [commits, setCommits] = useState([]);
 
   const [newCommit, setNewCommit] = useState({
     message: "",
-    author: "",
-  });
+    authorName: "",
+    projectId : projectId
+  })
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const handleAddCommit = () => {
-    if (newCommit.message && newCommit.author) {
-      const commit = {
-        id: commits.length + 1,
-        message: newCommit.message,
-        author: newCommit.author,
-        date: new Date().toISOString().split("T")[0],
-        hash: Math.random().toString(16).slice(2, 9),
-      };
+  useEffect(() => {
+    const fetchCommits = async () => {
+      console.log("Fetching Commits for the project" , projectId)
+      const { status, data } = await getCommits(projectId)
+      console.log("Commits : " ,data)
+      if (status !== "Success") {
+        return toast.error("Couldn't fetch commits at this time")
+      }
+      setCommits(data)
+      return 
+    }
+    fetchCommits()
+  },[projectId])
 
-      setCommits([commit, ...commits]);
-      setNewCommit({ message: "", author: "" });
-      setIsDialogOpen(false);
+  const handleAddCommit = async () => {
+    console.log(projectId)
+    console.log("New Commit : ", newCommit)
+    const { status, data } = await addCommit(newCommit)
+    console.log(data)
+    console.log(status)
+    if (status === "Success") {
+      toast.success("Commit Successfull");
+      setTimeout(() => {
+        window.location.reload();
+      }, 600); //600ms delay
+    }
+    else {
+      toast.error(status)
     }
   };
+  function convertTimestamp(isoTimestamp) {
+    // Create a Date object from the ISO timestamp
+    const date = new Date(isoTimestamp);
+
+    // Extract date and time components
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
+
+    // Format into a readable string
+    const readableFormat = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+
+    return readableFormat;
+  }
+
+  // Example usage
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-2xl font-bold mb-2">Commit History</h1>
-          <div className="text-sm text-gray-500">
-            <p>Project ID: {projectId}</p>
-            <p>Task ID: {taskId || "None"}</p>
-          </div>
-        </div>
+        <h1 className="text-2xl font-bold mb-2">Commit History</h1>
 
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
@@ -87,9 +103,9 @@ const Page = ({
                 <label className="block text-sm font-medium mb-1">Author</label>
                 <Input
                   placeholder="Enter author name"
-                  value={newCommit.author}
+                  value={newCommit.authorName}
                   onChange={(e) =>
-                    setNewCommit({ ...newCommit, author: e.target.value })
+                    setNewCommit({ ...newCommit, authorName: e.target.value })
                   }
                 />
               </div>
@@ -109,7 +125,7 @@ const Page = ({
               <Button
                 className="w-full"
                 onClick={handleAddCommit}
-                disabled={!newCommit.message || !newCommit.author}
+                disabled={!newCommit.message || !newCommit.authorName}
               >
                 Create Commit
               </Button>
@@ -119,30 +135,30 @@ const Page = ({
       </div>
 
       <div className="space-y-4">
-        {commits.map((commit) => (
+        {commits.map((commit, index) => (
           <div
-            key={commit.id}
+            key={index}
             className="border rounded-lg p-4 hover:shadow-md transition-shadow"
           >
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-2">
                 <GitCommit className="w-4 h-4 text-gray-500" />
                 <span className="font-mono text-sm text-gray-500">
-                  {commit.hash}
+                  {commit.id.slice(0, 8)}
                 </span>
               </div>
               <div className="flex items-center gap-4 text-sm text-gray-500">
                 <div className="flex items-center gap-1">
                   <User className="w-4 h-4" />
-                  {commit.author}
+                  {commit.authorName}
                 </div>
                 <div className="flex items-center gap-1">
                   <Calendar className="w-4 h-4" />
-                  {commit.date}
+                  {convertTimestamp(commit.created_at)}
                 </div>
               </div>
             </div>
-            <p className="mt-2 text-gray-700">{commit.message}</p>
+            <p className="mt-2">{commit.message}</p>
           </div>
         ))}
       </div>
