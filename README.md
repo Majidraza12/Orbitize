@@ -12,4 +12,4 @@ A simple task management application that allows users to create projects, manag
 
 ## Technologies Used
 
-- [Insert technologies used, e.g., React, Node.js, MongoDB, etc.]
+- Next JS, ShadCN, Supbase (storage and auth), Nodemailer, tailwindCSS, Typescript
