@@ -1,6 +1,6 @@
-# Task Management Application
+# Project Management Application
 
-A simple task management application that allows users to create projects, manage tasks, and implement version control for collaboration.
+A simple Project management application that allows users to create projects, manage tasks, and implement version control for collaboration.
 
 ## Features
 
