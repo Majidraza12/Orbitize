@@ -1,10 +1,9 @@
-
 //Server actions regarding authentication
 "use server";
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { useAuthUserStore } from "@/store/authUserStore";
+import { headers } from "next/headers";
 
 export async function signUp(formData: FormData) {
   const supabase = await createClient();
@@ -107,4 +106,33 @@ export async function getUserData(id: string) {
     return { user: null, error: error.message };
   }
   return { user: data, error: null };
+}
+export async function forgotPassword(formData: FormData) {
+  const origin = (await headers())?.get("origin");
+  const supabase = await createClient();
+  const email = formData.get("email") as string;
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${origin}/auth/reset-password`,
+  });
+  if (error) {
+    return { status: error?.message, user: null };
+  }
+  return { status: "Success" };
+}
+export async function resetPassword(formData: FormData, code: string) {
+  //We will extract the code from frontEnd and pass it to this function
+  const supabase = await createClient();
+  const { error: CodeError } = await supabase.auth.exchangeCodeForSession(code);
+  if (CodeError) {
+    alert("Invalid OTP");
+    return { status: CodeError?.message, user: null };
+    return { status: "Success" };
+  }
+  const { error } = await supabase.auth.updateUser({
+    password: formData.get("password") as string,
+  });
+  if (error) {
+    return { status: error?.message, user: null };
+  }
+  return { status: "Success" };
 }

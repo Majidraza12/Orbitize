@@ -1,95 +1,89 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { GitCommit , Calendar , User } from "lucide-react";
+import { GitCommit, Calendar, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
 import { getLatestCommit } from "@/actions/commit";
-import CommitLoader from "@/components/skeletons/CommitLoader"
+import CommitLoader from "@/components/skeletons/CommitLoader";
 
 function ShowLatestCommit({ projectId }: { projectId: string }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [latestCommit, setLatestCommit] = useState(null); // Initialize as null
-  const [loading,setLoading] = useState(false)
+  const [latestCommit, setLatestCommit] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [noCommits, setNoCommits] = useState(false);
 
   useEffect(() => {
     const fetchLatestCommit = async () => {
-      setLoading(true)
+      setLoading(true);
       const { status, data } = await getLatestCommit(projectId);
       console.log(data);
-      if (status === "Success") {
-        setLatestCommit(data[0]); // Set the latest commit
+      if (status === "Success" && data.length > 0) {
+        setLatestCommit(data[0]);
+      } else {
+        setNoCommits(true);
       }
-      setLoading(false)
+      setLoading(false);
     };
     fetchLatestCommit();
   }, [projectId]);
 
   useEffect(() => {
     console.log("Latest commit updated:", latestCommit);
-  }, [latestCommit]); // Logs whenever state updates
+  }, [latestCommit]);
 
-  const handleViewAllCommits = (e) => {
-    // e.preventDefault();
+  const handleViewAllCommits = () => {
     router.push(`${pathname}/commits`);
   };
-    function convertTimestamp(isoTimestamp) {
-      // Create a Date object from the ISO timestamp
-      const date = new Date(isoTimestamp);
 
-      // Extract date and time components
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
-      const day = String(date.getDate()).padStart(2, "0");
-      const hours = String(date.getHours()).padStart(2, "0");
-      const minutes = String(date.getMinutes()).padStart(2, "0");
-      const seconds = String(date.getSeconds()).padStart(2, "0");
-
-      // Format into a readable string
-      const readableFormat = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-
-      return readableFormat;
-    }
-
-
-  const handleShowCommit = (e) => {
-    console.log(latestCommit);
-    console.log(latestCommit?.message);
-  };
+  function convertTimestamp(isoTimestamp) {
+    const date = new Date(isoTimestamp);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  }
 
   return (
     <div className="mr-20 w-[60%]">
       {loading ? (
-         <CommitLoader/>
+        <CommitLoader />
+      ) : noCommits ? (
+        <div className="border rounded-lg p-4 text-gray-500 flex justify-between">
+          No commits available.
+          <Button size="sm" onClick={handleViewAllCommits}>
+            View All Commits
+          </Button>
+        </div>
       ) : (
         <div className="border rounded-lg p-4 hover:shadow-md transition-shadow">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-2">
               <GitCommit className="w-4 h-4 text-gray-500" />
               <span className="font-mono text-sm text-gray-500">
-                {latestCommit ? latestCommit.id.slice(0, 8) : <p>Loading...</p>}
+                {latestCommit?.id.slice(0, 8)}
               </span>
             </div>
             <div className="flex items-center gap-4 text-sm text-gray-500">
               <div className="flex items-center gap-1">
                 <User className="w-4 h-4" />
-                {latestCommit ? latestCommit.authorName : <p>Loading...</p>}
+                {latestCommit?.authorName}
               </div>
               <div className="flex items-center gap-1">
                 <Calendar className="w-4 h-4" />
-                {/* {convertTimestamp(latestCommit.created_at)} */}
-                {latestCommit ? (
-                  convertTimestamp(latestCommit.created_at)
-                ) : (
-                  <p>Loading...</p>
-                )}
+                {latestCommit ? convertTimestamp(latestCommit.created_at) : ""}
               </div>
             </div>
           </div>
           <div className="flex justify-between mt-2">
-            {latestCommit ? latestCommit.message : <p>Loading...</p>}
-            <Button size="sm" onClick={(e)=>handleViewAllCommits()}>View All Commits</Button>
+            {latestCommit?.message}
+            <Button size="sm" onClick={handleViewAllCommits}>
+              View All Commits
+            </Button>
           </div>
         </div>
       )}

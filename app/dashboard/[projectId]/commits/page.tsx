@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { addCommit , getCommits } from "@/actions/commit";
 import toast from "react-hot-toast";
+import CommitLoader from "@/components/skeletons/CommitLoader";
 
 const Page = ({
   params,
@@ -23,6 +24,7 @@ const Page = ({
   const { projectId, taskId } = React.use(params);
 
   const [commits, setCommits] = useState([]);
+  const [loading,setLoading] = useState(false)
 
   const [newCommit, setNewCommit] = useState({
     message: "",
@@ -34,6 +36,7 @@ const Page = ({
 
   useEffect(() => {
     const fetchCommits = async () => {
+      setLoading(true)
       console.log("Fetching Commits for the project" , projectId)
       const { status, data } = await getCommits(projectId)
       console.log("Commits : " ,data)
@@ -41,6 +44,7 @@ const Page = ({
         return toast.error("Couldn't fetch commits at this time")
       }
       setCommits(data)
+      setLoading(false)
       return 
     }
     fetchCommits()
@@ -135,32 +139,42 @@ const Page = ({
       </div>
 
       <div className="space-y-4">
-        {commits.map((commit, index) => (
-          <div
-            key={index}
-            className="border rounded-lg p-4 hover:shadow-md transition-shadow"
-          >
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-2">
-                <GitCommit className="w-4 h-4 text-gray-500" />
-                <span className="font-mono text-sm text-gray-500">
-                  {commit.id.slice(0, 8)}
-                </span>
-              </div>
-              <div className="flex items-center gap-4 text-sm text-gray-500">
-                <div className="flex items-center gap-1">
-                  <User className="w-4 h-4" />
-                  {commit.authorName}
+        {loading ? (
+          <>
+            <CommitLoader />
+            <CommitLoader />
+            <CommitLoader />
+          </>
+        ) : (
+          <>
+            {commits.map((commit, index) => (
+              <div
+                key={index}
+                className="border rounded-lg p-4 hover:shadow-md transition-shadow"
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-2">
+                    <GitCommit className="w-4 h-4 text-gray-500" />
+                    <span className="font-mono text-sm text-gray-500">
+                      {commit.id.slice(0, 8)}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-4 text-sm text-gray-500">
+                    <div className="flex items-center gap-1">
+                      <User className="w-4 h-4" />
+                      {commit.authorName}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Calendar className="w-4 h-4" />
+                      {convertTimestamp(commit.created_at)}
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Calendar className="w-4 h-4" />
-                  {convertTimestamp(commit.created_at)}
-                </div>
+                <p className="mt-2">{commit.message}</p>
               </div>
-            </div>
-            <p className="mt-2">{commit.message}</p>
-          </div>
-        ))}
+            ))}
+          </>
+        )}
       </div>
     </div>
   );

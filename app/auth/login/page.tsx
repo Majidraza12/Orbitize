@@ -4,15 +4,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
-import { login } from "@/actions/auth";
+import { login , forgotPassword } from "@/actions/auth";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { Loader } from "lucide-react";
+
 
 export default function LoginPage() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showResetOption, setShowResetOption] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -37,6 +39,7 @@ export default function LoginPage() {
         router.push("/dashboard");
       } else {
         toast.error(response.status || "Login failed");
+        setShowResetOption(true)
       }
     } catch (error) {
       toast.error(error || "Login failed");
@@ -44,7 +47,20 @@ export default function LoginPage() {
       setIsLoading(false);
     }
   };
-
+  const hanldeResetPasswordClick = async (e) => {
+    e.preventDefault();
+    const formDataToSend = new FormData();
+    formDataToSend.append("email", formData.email);
+    formDataToSend.append("password", formData.password);
+    const response = await forgotPassword(formDataToSend)
+    if (response.status === "Success") {
+      toast.success("Password reset link sent to your email")
+    } else {
+      // console.log(response)
+      toast.error("Invalid email address")
+    }
+    setShowResetOption(false)
+  }
   return (
     <div className="flex mt-20 items-center justify-center p-4">
       <div className="w-[30%] max-w-sm space-y-4">
@@ -84,8 +100,14 @@ export default function LoginPage() {
               {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
           </div>
+          <p
+            className={`text-sm text-center text-red-600 hover:text-red-900 mt-2 hover:cursor-pointer ${ showResetOption ? "" : "hidden"}`} 
+            onClick={(e)=> hanldeResetPasswordClick(e)}
+          >
+            Reset your password{" "}
+          </p>
           <Button
-            className="mx-auto mt-4"
+            className="mx-auto mt-1"
             onClick={handleLogin}
             disabled={isLoading}
           >

@@ -16,7 +16,7 @@ const Navbar = async () => {
     <div className="p-2 border-b-2 border-slate-800 flex items-center justify-around min-h-[20%]">
       <div className="flex gap-2">
         <Link href="/">
-          <p className="text-3xl ml-1 p-1 font-semibold">TaskSphere</p>
+          <p className="text-3xl ml-1 p-1 font-semibold">Orbitize</p>
         </Link>
       </div>
       {user ? (
@@ -33,7 +33,7 @@ const Navbar = async () => {
             <Button variant="secondary">
               Get Started <ArrowRightIcon className="ml-2 h-4 w-4" />
             </Button>
-          </Link>
+          </Link> 
         </div>
       )}
     </div>
